@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import Button from 'antd-mobile/lib/button'
+import { Button, Toast, InputItem } from 'antd-mobile';
 import {Actions} from 'react-native-router-flux'
 import {connect} from 'react-redux'
 import {action} from '../../util/auth'
@@ -21,12 +21,32 @@ const instructions = Platform.select({
   'Shake or press menu button for dev menu',
 });
 
- class Login extends Component {
+class Login extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      phone: "",
+      smsCode: "",
+    }
+  }
 
   test = () => {
     this.props.testAction({
       onSuccess: ()=>{console.log('success===>')},
       onFailure: (error)=>{console.log('error===>',error)}
+    })
+  }
+  
+  sendSms = () => {
+    this.props.requestSmsCode({
+      phoneNumber: this.state.phone
+    })
+  }
+  
+  userLogin = () => {
+    this.props.loginWithPhoneNumber({
+      phoneNumber: this.state.phone,
+      smsCode: this.state.smsCode
     })
   }
 
@@ -41,6 +61,16 @@ const instructions = Platform.select({
         </Text>
         <Button onClick={this.test} >testC</Button>
         <Button onClick={()=>{Actions.push('home')}} >toHome</Button>
+        <InputItem placeholder="请输入手机号"
+                   clear
+                   onChange={(v) => { this.setState({phone: v}) }}
+        >手机号</InputItem>
+        <InputItem placeholder="请输入验证码"
+                   clear
+                   onChange={(v) => { this.setState({smsCode: v}) }}
+        >验证码</InputItem>
+        <Button type="primary" inline size="small" style={{marginTop: 20}} onClick={this.sendSms}>获取验证码</Button>
+        <Button type="primary" style={{marginTop: 20}} onClick={this.userLogin}>登录</Button>
       </View>
     );
   }
@@ -54,8 +84,6 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   ...action
-
-
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -1,5 +1,5 @@
 {
-  "name": "kaierPlanetAppV2",
+  "name": "KaierPlanetApp",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
@@ -20,9 +20,10 @@
   },
   "dependencies": {
     "antd-mobile": "^2.1.8",
+    "babel-plugin-import": "^1.6.7",
     "expo": "^25.0.0",
     "immutable": "^3.8.2",
-    "lvyii_storage": "^0.0.15",
+    "lvyii_storage": "^0.0.20",
     "react": "16.2.0",
     "react-native": "0.52.0",
     "react-native-router-flux": "^4.0.0-beta.28",
