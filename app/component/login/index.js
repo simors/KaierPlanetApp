@@ -13,6 +13,7 @@ import { Button, Toast, InputItem } from 'antd-mobile';
 import {Actions} from 'react-native-router-flux'
 import {connect} from 'react-redux'
 import {action} from '../../util/auth'
+import LY from 'lvyii_storage'
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -49,6 +50,10 @@ class Login extends Component {
       smsCode: this.state.smsCode
     })
   }
+  
+  currentUser = () => {
+    LY.User.currentAsync().then((user) => console.log('current user', user))
+  }
 
   render() {
     return (
@@ -71,6 +76,7 @@ class Login extends Component {
         >验证码</InputItem>
         <Button type="primary" inline size="small" style={{marginTop: 20}} onClick={this.sendSms}>获取验证码</Button>
         <Button type="primary" style={{marginTop: 20}} onClick={this.userLogin}>登录</Button>
+        <Button type="primary" style={{marginTop: 20}} onClick={this.currentUser}>用户</Button>
       </View>
     );
   }
