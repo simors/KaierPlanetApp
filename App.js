@@ -14,8 +14,9 @@ import {
 } from 'react-native';
 import Router from './app/scene/scene'
 import LY from 'lvyii_storage'
-import { store} from './app/store/persistStore'
+import {store, persistor} from './app/store/persistStore'
 import {Provider, connect} from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
 
 const configDev = {
   appId: 'BtayVajHGy5dnmykZK4JRtV0',
@@ -27,10 +28,8 @@ const configDev = {
   },
 }
 
-
 LY.init(configDev)
 const RouterWithRedux = connect()(Router)
-
 
 export default class App extends Component {
   constructor(props) {
@@ -45,9 +44,11 @@ export default class App extends Component {
     StatusBar.setBarStyle('light-content', true)
     return (
       <Provider store={store}>
-        <View style={{flex: 1}}>
-          <RouterWithRedux store={store} sceneStyle={getSceneStyle}/>
-        </View>
+        <PersistGate loading={null} persistor={persistor}>
+          <View style={{flex: 1}}>
+            <RouterWithRedux store={store} sceneStyle={getSceneStyle}/>
+          </View>
+        </PersistGate>
       </Provider>
     );
   }

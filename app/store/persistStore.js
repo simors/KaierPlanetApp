@@ -1,30 +1,38 @@
 /**
  * Created by yangyang on 2017/6/28.
  */
-import {persistStore} from 'redux-persist'
-import createFilter from 'redux-persist-transform-filter'
-import immutableTransform from 'redux-persist-transform-immutable'
-import createStore from './createStore'
-import {selector as authSelector} from '../util/auth'
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
+import hardSet from 'redux-persist/lib/stateReconciler/hardSet'
+import { applyMiddleware, compose, createStore as createReduxStore } from 'redux'
+import createSagaMiddleware, { END } from 'redux-saga'
+import {createLogger} from 'redux-logger'
+import makeRootReducer from './reducer'
+import rootSaga from './saga'
 
-const configFilter = createFilter('CONFIG', [])
+const persistConfig = {
+  key: 'root',
+  storage,
+  stateReconciler: hardSet,
+  whitelist: [],
+  debug: true
+}
 
-// export default function persist(store) {
-//   return persistStore(store, {
-//     whitelist: ['AUTH'],
-//     // transforms: [configFilter]
-//   }, () => {
-//     // TODO: add function after rehydration is finished
-//     // let state = store.getState()
-//     // let token = authSelector.selectToken(state)
-//     // if (token) {
-//     //   store.dispatch(rehydrateDone({token, rehydrated: true}))
-//     // } else {
-//     //   // 必须在这个方法的最后调用，确保其他必须在持久化恢复之后进行的动作获取到此状态
-//     //   store.dispatch(appStateAction.updateRehydrate({rehydrated: true}))
-//     // }
-//   })
-// }
+const persistedReducer = persistReducer(persistConfig, makeRootReducer())
 
-export const store = createStore(window.__INITIAL_STATE__)
-// export const persistor = persist(store)
+const logger = createLogger({predicate: (getState, action) => __DEV__})
+const sagaMiddleware = createSagaMiddleware()
+
+const createStore = (initialState = {}) => {
+  const store = createReduxStore(persistedReducer,
+    initialState,
+    compose(
+      applyMiddleware(sagaMiddleware, logger)
+    ))
+  sagaMiddleware.run(rootSaga)
+  store.close = () => store.dispatch(END)
+  return store
+}
+
+export const store = createStore()
+export const persistor = persistStore(store)

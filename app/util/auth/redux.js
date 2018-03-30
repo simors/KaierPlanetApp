@@ -139,7 +139,7 @@ export function reducer(state=initialState, action) {
 }
 
 function reduceTest(state, action) {
-  console.log('reducer.action.payload========>',action.payload)
+  state = state.set('test', action.payload.data)
   return state
 }
 
