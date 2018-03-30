@@ -9,7 +9,8 @@ import {
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  StatusBar,
 } from 'react-native';
 import Router from './app/scene/scene'
 import LY from 'lvyii_storage'
@@ -23,9 +24,6 @@ const configDev = {
     engine: 'https://kaiercloud-dev.xiaojee.cn',
     auth: 'https://kaierbase-dev.xiaojee.cn',
     api: 'https://kaierbase-dev.xiaojee.cn'
-    // engine: 'https://kaiercloud-dev.xiaojee.cn',
-    // auth: 'https://kaierbase-dev.xiaojee.cn',
-    // api: 'https://kaierbase-dev.xiaojee.cn'
   },
 }
 
@@ -35,32 +33,38 @@ const RouterWithRedux = connect()(Router)
 
 
 export default class App extends Component {
+  constructor(props) {
+    super(props)
+  }
+  
   render() {
+    if (Platform.OS == 'android') {
+      StatusBar.setTranslucent(true)
+      StatusBar.setBackgroundColor('transparent', true)
+    }
+    StatusBar.setBarStyle('light-content', true)
     return (
       <Provider store={store}>
         <View style={{flex: 1}}>
-          <RouterWithRedux store={store} sceneStyle={styles} />
+          <RouterWithRedux store={store} sceneStyle={getSceneStyle}/>
         </View>
       </Provider>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
+const getSceneStyle = (props, computedProps) => {
+  const style = {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
+    backgroundColor: '#000',
+    shadowColor: null,
+    shadowOffset: null,
+    shadowOpacity: null,
+    shadowRadius: null,
+  }
+  if (computedProps.isActive) {
+    style.marginTop = computedProps.hideNavBar ? 0 : 64
+    style.marginBottom = computedProps.hideTabBar ? 0 : 50
+  }
+  return style
+}
