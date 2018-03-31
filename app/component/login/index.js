@@ -8,19 +8,17 @@ import {
   StyleSheet,
   Text,
   View,
+  TextInput
 } from 'react-native';
 import { Button, Toast, InputItem } from 'antd-mobile';
 import {Actions} from 'react-native-router-flux'
 import {connect} from 'react-redux'
 import {action} from '../../util/auth'
 import LY from 'lvyii_storage'
-
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-  'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-  'Shake or press menu button for dev menu',
-});
+import {PRIMARY_COLOR} from '../../util/globalStyle'
+import SmsCodeInput from '../common/SmsCodeInput'
+import CommonButton from '../common/CommonButton'
+import CommonTextInput from '../common/CommonTextInput'
 
 class Login extends Component {
   constructor(props) {
@@ -30,25 +28,12 @@ class Login extends Component {
       smsCode: "",
     }
   }
-
-  test = () => {
-    this.props.testAction({
-      onSuccess: ()=>{console.log('success===>')},
-      onFailure: (error)=>{console.log('error===>',error)}
-    })
-  }
-  
-  sendSms = () => {
-    this.props.requestSmsCode({
-      phoneNumber: this.state.phone
-    })
-  }
   
   userLogin = () => {
-    this.props.loginWithPhoneNumber({
-      phoneNumber: this.state.phone,
-      smsCode: this.state.smsCode
-    })
+    // this.props.loginWithPhoneNumber({
+    //   phoneNumber: this.state.phone,
+    //   smsCode: this.state.smsCode
+    // })
   }
   
   currentUser = () => {
@@ -58,25 +43,20 @@ class Login extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          i m login
-        </Text>
-        <Button onClick={this.test} >testC</Button>
-        <Button onClick={()=>{Actions.push('home')}} >toHome</Button>
-        <InputItem placeholder="请输入手机号"
-                   clear
-                   onChange={(v) => { this.setState({phone: v}) }}
-        >手机号</InputItem>
-        <InputItem placeholder="请输入验证码"
-                   clear
-                   onChange={(v) => { this.setState({smsCode: v}) }}
-        >验证码</InputItem>
-        <Button type="primary" inline size="small" style={{marginTop: 20}} onClick={this.sendSms}>获取验证码</Button>
-        <Button type="primary" style={{marginTop: 20}} onClick={this.userLogin}>登录</Button>
-        <Button type="primary" style={{marginTop: 20}} onClick={this.currentUser}>用户</Button>
+        <View>
+          <Text style={styles.subTitleText}>基于区块链的价值共享平台</Text>
+        </View>
+        <View style={styles.inputView}>
+          <CommonTextInput keyboardType="phone-pad"
+                           placeholder="输入手机号"
+                           maxLength={11}
+                           onChangeText={(text) => {this.setState({phone: text})}}
+          />
+          <SmsCodeInput style={{marginTop: 24}} phoneNumber={this.state.phone} onChangeText={(text) => {this.setState({smsCode: text})}}/>
+        </View>
+        <View style={styles.loginBtnView}>
+          <CommonButton title="开启凯尔星球之旅" onPress={this.userLogin}/>
+        </View>
       </View>
     );
   }
@@ -98,18 +78,26 @@ export default connect(mapStateToProps, mapDispatchToProps)(Login);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
+  },
+  subTitleText: {
+    fontSize: 17,
+    color: PRIMARY_COLOR,
+    letterSpacing: 3.5,
+  },
+  inputView: {
+    paddingLeft: 17,
+    paddingRight: 17,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  loginBtnView: {
+    paddingLeft: 17,
+    paddingRight: 17,
+    marginTop: 44,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

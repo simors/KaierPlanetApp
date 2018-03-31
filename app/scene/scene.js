@@ -53,14 +53,14 @@ class Scenes extends Component {
   
   render() {
     return (
-      <Router backAndroidHandler={this.onBackAndroid}>
+      <Router backAndroidHandler={this.onBackAndroid} sceneStyle={styles.sceneStyle}>
         <Stack key="root">
-          <Scene key="HOME" tabs tabBarStyle={styles.tabBarStyle} activeTintColor={PRIMARY_COLOR} inactiveTintColor="#888"
+          <Scene key="HOME" tabs tabBarStyle={styles.tabBarStyle} activeTintColor='#7AEBE9' inactiveTintColor="#888"
                  tabBarPosition="bottom" initial={true}>
             <Scene key="HOME_INDEX" title="星球" icon={TabbarIcon} hideNavBar component={Home} />
             <Scene key="MINE" title="我的" icon={TabbarIcon} hideNavBar component={Login} />
           </Scene>
-          <Scene key="login" component={Login}/>
+          <Scene key="login" component={Login} />
         </Stack>
       </Router>
     )
@@ -74,6 +74,14 @@ const styles = StyleSheet.create({
   iconStyle: {
     width: 24,
     height: 24,
+  },
+  sceneStyle: {
+    flex: 1,
+    backgroundColor: '#000',
+    shadowColor: null,
+    shadowOffset: null,
+    shadowOpacity: null,
+    shadowRadius: null,
   },
 })
 

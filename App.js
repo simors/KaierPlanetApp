@@ -46,26 +46,10 @@ export default class App extends Component {
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <View style={{flex: 1}}>
-            <RouterWithRedux store={store} sceneStyle={getSceneStyle}/>
+            <RouterWithRedux store={store}/>
           </View>
         </PersistGate>
       </Provider>
     );
   }
-}
-
-const getSceneStyle = (props, computedProps) => {
-  const style = {
-    flex: 1,
-    backgroundColor: '#000',
-    shadowColor: null,
-    shadowOffset: null,
-    shadowOpacity: null,
-    shadowRadius: null,
-  }
-  if (computedProps.isActive) {
-    style.marginTop = computedProps.hideNavBar ? 0 : 64
-    style.marginBottom = computedProps.hideTabBar ? 0 : 50
-  }
-  return style
 }
