@@ -3,7 +3,6 @@
  */
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
-import hardSet from 'redux-persist/lib/stateReconciler/hardSet'
 import { applyMiddleware, compose, createStore as createReduxStore } from 'redux'
 import createSagaMiddleware, { END } from 'redux-saga'
 import {createLogger} from 'redux-logger'
@@ -13,9 +12,7 @@ import rootSaga from './saga'
 const persistConfig = {
   key: 'root',
   storage,
-  stateReconciler: hardSet,
-  whitelist: [],
-  debug: true
+  whitelist: []
 }
 
 const persistedReducer = persistReducer(persistConfig, makeRootReducer())
@@ -35,4 +32,6 @@ const createStore = (initialState = {}) => {
 }
 
 export const store = createStore()
-export const persistor = persistStore(store)
+export const persistor = persistStore(store, null, () => {
+  console.log("after rehydration")
+})
