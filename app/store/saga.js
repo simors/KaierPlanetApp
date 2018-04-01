@@ -3,7 +3,7 @@
  */
 import { all } from 'redux-saga/effects'
 
-import {saga as authSaga} from '../util/auth/'
+import {authSaga} from '../util/auth/'
 
 
 export default function* rootSaga() {

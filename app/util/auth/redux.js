@@ -6,97 +6,67 @@ import * as api from './cloud';
 // --- model
 
 class AuthState extends Record({
-  test: undefined
-}, 'AuthState') {
-
-}
+  token: undefined,             // current login user token
+  curUserId: undefined,         // current login user
+  usersById: Map(),             // Map<user id, User>
+}, 'AuthState') {}
 
 class User extends Record({
-  id: undefined,                  // objectId
-  nickname: undefined             // nickname
+  id: undefined,                        // 用户编号
+  username: undefined,                  // 用户名
+  mobilePhone: undefined,               // 手机号
+  loginDate : undefined,                // 登陆时间
+  engine: undefined,                    // 幽能数量
+  crystal: undefined,                   // 水晶数量
+  availableEngineNum: undefined,        // 可获取幽能的次数
+  address: undefined,                   // 公钥地址
 }, 'User') {
   static fromJson(json) {
     const imm = new User();
 
     return imm.withMutations((m) => {
       m.set('id', json.id);
-      m.set('nickname', json.nickname);
+      m.set('username', json.username);
+      m.set('mobilePhone', json.mobilePhone);
+      m.set('loginDate', json.loginDate);
+      m.set('engine', json.engine);
+      m.set('crystal', json.crystal);
+      m.set('availableEngineNum', json.availableEngineNum);
+      m.set('address', json.address);
     });
-  }
-
-  static toJson(imm) {
-    // NOTE: IE8 does not support property access. Only use get() when supporting IE8
-    return {
-      id: imm.id,
-      nickname: imm.nickname
-    };
   }
 }
 
 
 // --- constant
 
-const TEST_ACTION = 'TEST_ACTION';
-const TEST_FIN = 'TEST_FIN';
 const REQ_SMS_CODE = 'REQ_SMS_CODE'
 const LOGIN_WITH_PHONE = 'LOGIN_WITH_PHONE'
-
+const SAVE_USER = 'SAVE_USER'
+const USER_LOGIN = 'USER_LOGIN'
 
 // --- action
 
 export const action = {
-  testAction: createAction(TEST_ACTION),
   loginWithPhoneNumber: createAction(LOGIN_WITH_PHONE),
   requestSmsCode: createAction(REQ_SMS_CODE)
 };
 
-const testFin = createAction(TEST_FIN);
+const userLogin = createAction(USER_LOGIN)
 
 // --- saga
 
 export const saga = [
-  takeLatest(TEST_ACTION, sagaTestSaga),
   takeLatest(LOGIN_WITH_PHONE, sagaLoginWithPhoneNumber),
   takeLatest(REQ_SMS_CODE, sagaRequestSmsCode)
 ];
-
-/**
- *
- * @param action
- * payload = {
- *   phone,
- *   password,
- *   onSuccess?,
- *   onFailure?,
- *   onComplete?,
- * }
- */
-function* sagaTestSaga(action) {
-  const payload = action.payload;
-
-  try {
-    let params = {}
-    const data = yield call(api.testLY, params);
-
-    yield put(testFin({data}));
-
-    if (payload.onSuccess) {
-      payload.onSuccess();
-    }
-  } catch (e) {
-    console.error(e)
-    if (payload.onFailure) {
-      payload.onFailure(e);
-    }
-  }
-}
 
 function* sagaLoginWithPhoneNumber(action) {
   let payload = action.payload
   
   try {
     let userInfo = yield call(api.loginWithPhoneNumber, payload)
-    console.log("userInfo", userInfo)
+    yield put(userLogin({user: userInfo}))
     
     if (payload.success) {
       payload.success()
@@ -131,23 +101,27 @@ const initialState = new AuthState();
 
 export function reducer(state=initialState, action) {
   switch(action.type) {
-    case TEST_FIN:
-      return reduceTest(state, action);
+    case USER_LOGIN:
+      return userLoginReducer(state, action)
     default:
       return state
   }
 }
 
-function reduceTest(state, action) {
-  state = state.set('test', action.payload.data)
+function userLoginReducer(state, action) {
+  let user = action.payload.user
+  let userRecord = User.fromJson(user)
+  state = state.set('curUserId', user.id)
+  state = state.set('token', user.token)
+  state = state.setIn(['usersById', user.id], userRecord)
   return state
 }
-
 
 // --- selector
 
 export const selector = {
   selectCurUser,
+  selectUserById,
 };
 
 function selectCurUser(appState) {
@@ -158,3 +132,20 @@ function selectCurUser(appState) {
   return selectUserById(appState, curUserId);
 }
 
+/**
+ * Get user detail by user id.
+ * @param {Object} appState
+ * @param {String} userId
+ * @returns {User} JSON representation of User object
+ */
+function selectUserById(appState, userId) {
+  if (!userId) {
+    return undefined
+  }
+  
+  const immUser = appState.AUTH.getIn(['usersById', userId]);
+  if (immUser === undefined)
+    return undefined;
+  
+  return immUser.toJS();
+}

@@ -10,11 +10,9 @@ import {
   View,
   TextInput
 } from 'react-native';
-import { Button, Toast, InputItem } from 'antd-mobile';
 import {Actions} from 'react-native-router-flux'
 import {connect} from 'react-redux'
-import {action} from '../../util/auth'
-import LY from 'lvyii_storage'
+import {authAction} from '../../util/auth'
 import {PRIMARY_COLOR} from '../../util/globalStyle'
 import SmsCodeInput from '../common/SmsCodeInput'
 import CommonButton from '../common/CommonButton'
@@ -30,14 +28,10 @@ class Login extends Component {
   }
   
   userLogin = () => {
-    // this.props.loginWithPhoneNumber({
-    //   phoneNumber: this.state.phone,
-    //   smsCode: this.state.smsCode
-    // })
-  }
-  
-  currentUser = () => {
-    LY.User.currentAsync().then((user) => console.log('current user', user))
+    this.props.loginWithPhoneNumber({
+      phoneNumber: this.state.phone,
+      smsCode: this.state.smsCode
+    })
   }
 
   render() {
@@ -69,7 +63,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = {
-  ...action
+  ...authAction
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
