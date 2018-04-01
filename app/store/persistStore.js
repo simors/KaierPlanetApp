@@ -8,11 +8,12 @@ import createSagaMiddleware, { END } from 'redux-saga'
 import {createLogger} from 'redux-logger'
 import makeRootReducer from './reducer'
 import rootSaga from './saga'
+import {authAction, authSelector} from '../util/auth'
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: []
+  whitelist: ['AUTH']
 }
 
 const persistedReducer = persistReducer(persistConfig, makeRootReducer())
@@ -33,5 +34,9 @@ const createStore = (initialState = {}) => {
 
 export const store = createStore()
 export const persistor = persistStore(store, null, () => {
-  console.log("after rehydration")
+  let state = store.getState()
+  let token = authSelector.selectLoginUserToken(state)
+  if (token) {
+    store.dispatch(authAction.loginWithToken({token}))
+  }
 })

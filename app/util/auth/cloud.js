@@ -1,7 +1,11 @@
 import LY from 'lvyii_storage';
 
-export async function testLY(payload) {
-  return await LY.Cloud.run('cloudTest',payload)
+export async function become(payload) {
+  const {token} = payload;
+  
+  const userInfo = await LY.User.become(token);
+
+  return userInfo
 }
 
 export async function loginWithPhoneNumber(payload) {

@@ -1,5 +1,6 @@
 import {call, put, takeLatest} from 'redux-saga/effects';
 import {createAction} from 'redux-actions';
+import {REHYDRATE} from 'redux-persist'
 import {Record, Map, Set, List} from 'immutable'
 import * as api from './cloud';
 
@@ -42,6 +43,7 @@ class User extends Record({
 
 const REQ_SMS_CODE = 'REQ_SMS_CODE'
 const LOGIN_WITH_PHONE = 'LOGIN_WITH_PHONE'
+const LOGIN_WITH_TOKEN = 'LOGIN_WITH_TOKEN';
 const SAVE_USER = 'SAVE_USER'
 const USER_LOGIN = 'USER_LOGIN'
 
@@ -49,7 +51,8 @@ const USER_LOGIN = 'USER_LOGIN'
 
 export const action = {
   loginWithPhoneNumber: createAction(LOGIN_WITH_PHONE),
-  requestSmsCode: createAction(REQ_SMS_CODE)
+  requestSmsCode: createAction(REQ_SMS_CODE),
+  loginWithToken: createAction(LOGIN_WITH_TOKEN),
 };
 
 const userLogin = createAction(USER_LOGIN)
@@ -58,7 +61,8 @@ const userLogin = createAction(USER_LOGIN)
 
 export const saga = [
   takeLatest(LOGIN_WITH_PHONE, sagaLoginWithPhoneNumber),
-  takeLatest(REQ_SMS_CODE, sagaRequestSmsCode)
+  takeLatest(REQ_SMS_CODE, sagaRequestSmsCode),
+  takeLatest(LOGIN_WITH_TOKEN, sagaLoginWithToken)
 ];
 
 function* sagaLoginWithPhoneNumber(action) {
@@ -95,6 +99,30 @@ function* sagaRequestSmsCode(action) {
   }
 }
 
+function* sagaLoginWithToken(action) {
+  const payload = action.payload;
+  
+  try {
+    const params = {};
+    
+    ({token: params.token} = payload);
+    
+    const userInfo = yield call(api.become, params);
+    yield put(userLogin({user: userInfo}))
+  
+    if (payload.success) {
+      payload.success()
+    }
+    
+    console.log('login with token succeeded：', userInfo);
+  } catch(e) {
+    console.error('login with token failed：', e);
+    if (payload.error) {
+      payload.error()
+    }
+  }
+}
+
 // --- reducer
 
 const initialState = new AuthState();
@@ -103,6 +131,8 @@ export function reducer(state=initialState, action) {
   switch(action.type) {
     case USER_LOGIN:
       return userLoginReducer(state, action)
+    case REHYDRATE:
+      return onRehydrate(state, action);
     default:
       return state
   }
@@ -117,12 +147,28 @@ function userLoginReducer(state, action) {
   return state
 }
 
-// --- selector
+function onRehydrate(state, action) {
+  let incoming = action.payload.AUTH
+  console.log('incoming', incoming)
+  if (!incoming) {
+    return state
+  }
+  
+  state = state.set('curUserId', incoming.curUserId)
+  state = state.set('token', incoming.token)
+  
+  let usersById = incoming.usersById
+  if (usersById) {
+    for (let userId in usersById) {
+      let user = usersById[userId]
+      state = state.setIn(['usersById', user.id], User.fromJson(user))
+    }
+  }
+  
+  return state
+}
 
-export const selector = {
-  selectCurUser,
-  selectUserById,
-};
+// --- selector
 
 function selectCurUser(appState) {
   const curUserId = appState.AUTH.curUserId;
@@ -149,3 +195,13 @@ function selectUserById(appState, userId) {
   
   return immUser.toJS();
 }
+
+function selectLoginUserToken(appState) {
+  return appState.AUTH.token;
+}
+
+export const selector = {
+  selectCurUser,
+  selectUserById,
+  selectLoginUserToken,
+};
