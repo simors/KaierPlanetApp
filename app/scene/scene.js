@@ -60,7 +60,7 @@ class Scenes extends Component {
             <Scene key="HOME_INDEX" title="星球" icon={TabbarIcon} hideNavBar component={Home} />
             <Scene key="MINE" title="我的" icon={TabbarIcon} hideNavBar component={Login} />
           </Scene>
-          <Scene key="login" title="登录" component={Login} navBarButtonColor={SECONDARY_COLOR} navigationBarStyle={styles.navBarStyle}/>
+          <Scene key="login" title="登录" component={Login} navBarButtonColor='#fff' navigationBarStyle={styles.navBarStyle}/>
         </Stack>
       </Router>
     )
