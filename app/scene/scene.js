@@ -4,7 +4,7 @@
 import React, {Component} from 'react'
 import {StyleSheet, AsyncStorage, Image, BackHandler, ToastAndroid} from 'react-native'
 import {Actions, Scene, Modal, Router, Stack} from 'react-native-router-flux'
-import {PRIMARY_COLOR} from '../util/globalStyle'
+import {SECONDARY_COLOR} from '../util/globalStyle'
 import Home from '../component/home'
 import Login from '../component/login'
 
@@ -60,7 +60,7 @@ class Scenes extends Component {
             <Scene key="HOME_INDEX" title="星球" icon={TabbarIcon} hideNavBar component={Home} />
             <Scene key="MINE" title="我的" icon={TabbarIcon} hideNavBar component={Login} />
           </Scene>
-          <Scene key="login" component={Login} />
+          <Scene key="login" title="登录" component={Login} navBarButtonColor={SECONDARY_COLOR} navigationBarStyle={styles.navBarStyle}/>
         </Stack>
       </Router>
     )
@@ -82,6 +82,9 @@ const styles = StyleSheet.create({
     shadowOffset: null,
     shadowOpacity: null,
     shadowRadius: null,
+  },
+  navBarStyle: {
+    backgroundColor: '#000'
   },
 })
 
