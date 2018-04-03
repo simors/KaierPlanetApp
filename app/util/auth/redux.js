@@ -70,13 +70,19 @@ function* sagaLoginWithPhoneNumber(action) {
   
   try {
     let userInfo = yield call(api.loginWithPhoneNumber, payload)
+    if (!userInfo) {
+      if (payload.error) {
+        payload.error()
+      }
+      return
+    }
     yield put(userLogin({user: userInfo}))
     
     if (payload.success) {
       payload.success()
     }
   } catch (e) {
-    console.error(e)
+    console.log('error in redux', e)
     if (payload.error) {
       payload.error()
     }
@@ -148,7 +154,7 @@ function userLoginReducer(state, action) {
 }
 
 function onRehydrate(state, action) {
-  let incoming = action.payload.AUTH
+  let incoming = action.payload ? action.payload.AUTH : undefined
   if (!incoming) {
     return state
   }
@@ -156,11 +162,11 @@ function onRehydrate(state, action) {
   state = state.set('curUserId', incoming.curUserId)
   state = state.set('token', incoming.token)
   
-  let usersById = incoming.usersById
-  if (usersById) {
-    for (let userId in usersById) {
-      let user = usersById[userId]
-      state = state.setIn(['usersById', user.id], User.fromJson(user))
+  let usersById = Map(incoming.usersById)
+  for (let [userId, user] of usersById) {
+    if(userId && user) {
+      let userRecord = User.fromJson(user)
+      state = state.setIn(['usersById', userId], userRecord)
     }
   }
   

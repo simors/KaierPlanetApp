@@ -11,6 +11,7 @@ import {
   Button,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux'
+import {persistor} from '../../store/persistStore'
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -32,7 +33,8 @@ export default class Home extends Component {
         <Text style={styles.instructions}>
           {instructions}
         </Text>
-        <Button onPress={()=>{Actions.push('login')}} title='toLogin'>toLogin</Button>
+        <Button onPress={()=>{persistor.purge()}} title='Clear Storage'>Clear Storage</Button>
+        <Button onPress={()=>{Actions.LOGIN()}} title='toLogin'>toLogin</Button>
       </View>
     );
   }

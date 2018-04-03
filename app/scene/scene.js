@@ -3,8 +3,10 @@
  */
 import React, {Component} from 'react'
 import {StyleSheet, AsyncStorage, Image, BackHandler, ToastAndroid} from 'react-native'
+import {connect} from 'react-redux'
 import {Actions, Scene, Modal, Router, Stack} from 'react-native-router-flux'
 import {SECONDARY_COLOR} from '../util/globalStyle'
+import {authSelector} from '../util/auth'
 import Home from '../component/home'
 import Login from '../component/login'
 
@@ -51,16 +53,29 @@ class Scenes extends Component {
     return true
   }
   
+  isUserLogout = () => {
+    let {token} = this.props
+    if (token) {
+      return false
+    }
+    return true
+  }
+  
+  jumpToLogin = () => {
+    Actions.LOGIN_NONAV()
+  }
+  
   render() {
     return (
       <Router backAndroidHandler={this.onBackAndroid} sceneStyle={styles.sceneStyle}>
         <Stack key="root">
-          <Scene key="HOME" tabs tabBarStyle={styles.tabBarStyle} activeTintColor='#7AEBE9' inactiveTintColor="#888"
+          <Scene key="HOME" tabs tabBarStyle={styles.tabBarStyle} activeTintColor={SECONDARY_COLOR} inactiveTintColor="#888"
                  tabBarPosition="bottom" initial={true}>
-            <Scene key="HOME_INDEX" title="星球" icon={TabbarIcon} hideNavBar component={Home} />
-            <Scene key="MINE" title="我的" icon={TabbarIcon} hideNavBar component={Login} />
+            <Scene key="HOME_INDEX" title="星球" icon={TabbarIcon} hideNavBar component={Home} onEnter={this.isUserLogout} success={this.jumpToLogin}/>
+            <Scene key="MINE" title="我的" icon={TabbarIcon} hideNavBar component={Login} onEnter={this.isUserLogout} success={this.jumpToLogin}/>
           </Scene>
-          <Scene key="login" title="登录" component={Login} navBarButtonColor='#fff' navigationBarStyle={styles.navBarStyle}/>
+          <Scene key="LOGIN" title="登录" component={Login} navBarButtonColor='#fff' navigationBarStyle={styles.navBarStyle}/>
+          <Scene key="LOGIN_NONAV" title="登录" hideNavBar component={Login}/>
         </Stack>
       </Router>
     )
@@ -88,4 +103,13 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Scenes
+const mapStateToProps = (state, ownProps) => {
+  return {
+    token: authSelector.selectLoginUserToken(state)
+  }
+};
+
+const mapDispatchToProps = {
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Scenes);

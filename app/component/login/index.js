@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {Actions} from 'react-native-router-flux'
 import {connect} from 'react-redux'
+import {Toast} from 'antd-mobile'
 import {authAction} from '../../util/auth'
 import {PRIMARY_COLOR} from '../../util/globalStyle'
 import SmsCodeInput from '../common/SmsCodeInput'
@@ -28,9 +29,18 @@ class Login extends Component {
   }
   
   userLogin = () => {
+    Toast.loading('正在登录', 0)
     this.props.loginWithPhoneNumber({
       phoneNumber: this.state.phone,
-      smsCode: this.state.smsCode
+      smsCode: this.state.smsCode,
+      success: () => {
+        Actions.HOME({type: 'reset'})
+        Toast.hide()
+      },
+      error: () => {
+        Toast.hide()
+        Toast.fail('登录失败')
+      }
     })
   }
 
