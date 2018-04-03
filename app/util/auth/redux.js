@@ -149,7 +149,6 @@ function userLoginReducer(state, action) {
 
 function onRehydrate(state, action) {
   let incoming = action.payload.AUTH
-  console.log('incoming', incoming)
   if (!incoming) {
     return state
   }

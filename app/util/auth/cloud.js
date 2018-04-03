@@ -2,9 +2,7 @@ import LY from 'lvyii_storage';
 
 export async function become(payload) {
   const {token} = payload;
-  
   const userInfo = await LY.User.become(token);
-
   return userInfo
 }
 
